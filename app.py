@@ -4,10 +4,9 @@ import pandas as pd
 import joblib
 
 # Simpan model yang sudah dilatih
-joblib.dump(model, 'model_raisin_nb.pkl')
+model = joblib.load('model_raisin_nb.pkl')
+scaler = joblib.load('scaler_raisin.pkl')
 
-# Simpan scaler
-joblib.dump(scaler, 'scaler_raisin.pkl')
 
 
 # Judul aplikasi
