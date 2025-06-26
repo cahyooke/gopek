@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# --- Load model (tanpa scaler) ---
-model = joblib.load("model_knn.pkl")
+# --- Load model ---
+model = joblib.load("model_knn.pkl")  # Hanya model, tanpa scaler
 
-# --- Daftar fitur yang digunakan (10 fitur utama Raisin) ---
+# --- Daftar fitur yang digunakan saat training ---
 selected_features = [
     'Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength',
     'Eccentricity', 'ConvexArea', 'Extent', 'Solidity',
@@ -13,40 +13,25 @@ selected_features = [
 ]
 
 # --- Judul Aplikasi ---
-st.title("Prediksi Jenis Kismis (Raisin) - KNN Classifier (Tanpa Scaler)")
+st.title("Prediksi Jenis Kismis (Raisin) - KNN Classifier")
 
-# --- Upload file CSV ---
-uploaded_file = st.file_uploader("Upload file CSV untuk prediksi (10 fitur Raisin)", type=["csv"])
+st.markdown("Silakan isi data karakteristik kismis untuk diprediksi.")
 
-if uploaded_file is not None:
+# --- Input dari pengguna ---
+user_input = {}
+for feature in selected_features:
+    user_input[feature] = st.number_input(f"{feature}", min_value=0.0, step=0.01)
+
+# --- Tombol Prediksi ---
+if st.button("Prediksi"):
     try:
-        # Baca file CSV
-        df = pd.read_csv(uploaded_file)
+        # Buat DataFrame dari input
+        input_df = pd.DataFrame([user_input])
 
-        st.subheader("Data Input:")
-        st.dataframe(df)
+        # Lakukan prediksi
+        prediction = model.predict(input_df)[0]
 
-        # Validasi kolom
-        if all(feature in df.columns for feature in selected_features):
-            # Ambil hanya kolom yang sesuai urutan training
-            df_input = df[selected_features]
-
-            # Prediksi langsung (tanpa scaler)
-            predictions = model.predict(df_input)
-            df['Prediksi'] = predictions
-
-            st.success("Prediksi berhasil dilakukan!")
-            st.subheader("Hasil Prediksi:")
-            st.dataframe(df)
-
-            # Download hasil
-            csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("Download Hasil Prediksi", data=csv, file_name="hasil_prediksi_raisin.csv", mime="text/csv")
-        else:
-            missing = set(selected_features) - set(df.columns)
-            st.error(f"Kolom berikut tidak ditemukan di file CSV: {', '.join(missing)}")
+        st.success(f"Hasil Prediksi: Jenis kismis adalah **{prediction}**")
 
     except Exception as e:
-        st.error(f"Terjadi kesalahan: {e}")
-else:
-    st.info("Silakan upload file CSV dengan 10 fitur raisin untuk memulai.")
+        st.error(f"Terjadi kesalahan saat memproses input: {e}")
