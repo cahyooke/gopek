@@ -2,41 +2,53 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load model
-model = joblib.load('model_knn.pkl')
+# --- Load model dan scaler ---
+model = joblib.load("model_knn.pkl")
+scaler = joblib.load("scaler_knn.pkl")  # pastikan ini diupload juga
 
-st.title("Prediksi Jenis Kismis (Raisin) - Model KNN")
+# --- Daftar fitur yang digunakan saat training ---
+selected_features = [
+    'Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength',
+    'Eccentricity', 'ConvexArea', 'Extent', 'Solidity',
+    'Roundness', 'Compactness'
+]
 
-# Input fitur dari pengguna
-st.write("Masukkan nilai fitur untuk prediksi:")
-area = st.number_input("Area")
-perimeter = st.number_input("Perimeter")
-major_axis = st.number_input("Major Axis Length")
-minor_axis = st.number_input("Minor Axis Length")
-eccentricity = st.number_input("Eccentricity")
-convex_area = st.number_input("Convex Area")
-extent = st.number_input("Extent")
-solidity = st.number_input("Solidity")
-roundness = st.number_input("Roundness")
-compactness = st.number_input("Compactness")
-shape_factor_1 = st.number_input("ShapeFactor1")
-shape_factor_2 = st.number_input("ShapeFactor2")
-shape_factor_3 = st.number_input("ShapeFactor3")
-shape_factor_4 = st.number_input("ShapeFactor4")
+# --- Judul App ---
+st.title("Prediksi Jenis Kismis (Raisin) - KNN Classifier")
 
-# Prediksi saat tombol ditekan
-if st.button("Prediksi"):
-    # Susun input ke DataFrame
-    input_df = pd.DataFrame([[
-        area, perimeter, major_axis, minor_axis, eccentricity, convex_area,
-        extent, solidity, roundness, compactness,
-        shape_factor_1, shape_factor_2, shape_factor_3, shape_factor_4
-    ]], columns=[
-        'Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength', 'Eccentricity',
-        'ConvexArea', 'Extent', 'Solidity', 'Roundness', 'Compactness',
-        'ShapeFactor1', 'ShapeFactor2', 'ShapeFactor3', 'ShapeFactor4'
-    ])
+# --- Upload CSV ---
+uploaded_file = st.file_uploader("Upload file CSV untuk prediksi (hanya 10 fitur utama)", type=["csv"])
 
-    # Prediksi
-    prediction = model.predict(input_df)[0]
-    st.success(f"Prediksi jenis kismis: {prediction}")
+if uploaded_file is not None:
+    try:
+        # Baca data
+        df = pd.read_csv(uploaded_file)
+
+        # Validasi kolom
+        if all(feature in df.columns for feature in selected_features):
+            # Ambil hanya kolom yang dibutuhkan dan urutkan
+            df_input = df[selected_features]
+
+            # Skala data
+            df_scaled = scaler.transform(df_input)
+
+            # Prediksi
+            predictions = model.predict(df_scaled)
+            df['Prediksi'] = predictions
+
+            st.success("Prediksi berhasil!")
+            st.dataframe(df)
+
+            # Tombol download hasil
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("Download Hasil Prediksi", data=csv, file_name="hasil_prediksi_raisin.csv", mime="text/csv")
+
+        else:
+            missing = set(selected_features) - set(df.columns)
+            st.error(f"Kolom berikut tidak ditemukan di file CSV: {', '.join(missing)}")
+
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat memproses file: {e}")
+
+else:
+    st.info("Silakan upload file CSV untuk memulai prediksi.")
