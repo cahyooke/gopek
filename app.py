@@ -3,9 +3,12 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load model dan scaler
-model = joblib.load('model_raisin_nb.pkl')
-scaler = joblib.load('scaler_raisin.pkl')
+# Simpan model yang sudah dilatih
+joblib.dump(model, 'model_raisin_nb.pkl')
+
+# Simpan scaler
+joblib.dump(scaler, 'scaler_raisin.pkl')
+
 
 # Judul aplikasi
 st.title("Prediksi Jenis Kismis (Raisin)")
