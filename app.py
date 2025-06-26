@@ -1,16 +1,11 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import joblib
 
-# Simpan model yang sudah dilatih
-model = joblib.load('model_raisin_nb.pkl')
-scaler = joblib.load('scaler_raisin.pkl')
+# Load model
+model = joblib.load('model_knn.pkl')
 
-
-
-# Judul aplikasi
-st.title("Prediksi Jenis Kismis (Raisin)")
+st.title("Prediksi Jenis Kismis (Raisin) - Model KNN")
 
 # Input fitur dari pengguna
 st.write("Masukkan nilai fitur untuk prediksi:")
@@ -29,9 +24,9 @@ shape_factor_2 = st.number_input("ShapeFactor2")
 shape_factor_3 = st.number_input("ShapeFactor3")
 shape_factor_4 = st.number_input("ShapeFactor4")
 
-# Tombol prediksi
+# Prediksi saat tombol ditekan
 if st.button("Prediksi"):
-    # Buat dataframe input pengguna
+    # Susun input ke DataFrame
     input_df = pd.DataFrame([[
         area, perimeter, major_axis, minor_axis, eccentricity, convex_area,
         extent, solidity, roundness, compactness,
@@ -42,10 +37,6 @@ if st.button("Prediksi"):
         'ShapeFactor1', 'ShapeFactor2', 'ShapeFactor3', 'ShapeFactor4'
     ])
 
-    # Skala input
-    input_scaled = scaler.transform(input_df)
-
     # Prediksi
-    prediction = model.predict(input_scaled)[0]
-
+    prediction = model.predict(input_df)[0]
     st.success(f"Prediksi jenis kismis: {prediction}")
