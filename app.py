@@ -4,8 +4,8 @@ import pandas as pd
 import joblib
 
 # Load model dan scaler
-model = joblib.load('model.pkl')
-scaler = joblib.load('scaler.pkl')
+model = joblib.load('model_raisin_nb.pkl')
+scaler = joblib.load('scaler_raisin.pkl')
 
 st.title("Prediksi Klasifikasi Raisin")
 
