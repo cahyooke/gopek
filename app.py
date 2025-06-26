@@ -3,35 +3,28 @@ import pandas as pd
 import joblib
 
 # --- Load model ---
-model = joblib.load("model_knn.pkl")  # Hanya model, tanpa scaler
+model = joblib.load("model_knn.pkl")
 
-# --- Daftar fitur yang digunakan saat training ---
+# --- Hanya fitur yang digunakan saat training (7 fitur) ---
 selected_features = [
-    'Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength',
-    'Eccentricity', 'ConvexArea', 'Extent', 'Solidity',
-    'Roundness', 'Compactness'
+    'Area', 'Perimeter', 'Eccentricity', 'Solidity',
+    'Extent', 'Compactness', 'Roundness'
 ]
 
-# --- Judul Aplikasi ---
-st.title("Prediksi Jenis Kismis (Raisin) - KNN Classifier")
+st.title("Prediksi Jenis Kismis (7 Fitur) - Model KNN")
 
-st.markdown("Silakan isi data karakteristik kismis untuk diprediksi.")
+st.markdown("Masukkan nilai fitur berikut:")
 
-# --- Input dari pengguna ---
+# Form input manual
 user_input = {}
 for feature in selected_features:
     user_input[feature] = st.number_input(f"{feature}", min_value=0.0, step=0.01)
 
-# --- Tombol Prediksi ---
+# Prediksi saat tombol diklik
 if st.button("Prediksi"):
     try:
-        # Buat DataFrame dari input
         input_df = pd.DataFrame([user_input])
-
-        # Lakukan prediksi
         prediction = model.predict(input_df)[0]
-
-        st.success(f"Hasil Prediksi: Jenis kismis adalah **{prediction}**")
-
+        st.success(f"Jenis kismis diprediksi sebagai: **{prediction}**")
     except Exception as e:
         st.error(f"Terjadi kesalahan saat memproses input: {e}")
